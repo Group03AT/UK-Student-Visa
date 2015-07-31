@@ -8,7 +8,7 @@ Variables         variables/country.py
 
 *** Variables ***
 ${URL}            https://assessments.visabureau.com/uk/assessment/general/default.aspx?visatype=23
-${DRIVER}         ff
+${DRIVER}         chrome
 
 *** Keywords ***
 Test Setup
@@ -67,7 +67,7 @@ Select Random Value From Listbox
 
 Test Fail Log
     [Arguments]    ${log_msg}
-    ${img_filename}    Fill random string    15    [LETTERS][NUMBERS]
+    ${img_filename}    Fill random string    15
     Capture Page Screenshot    ${img_filename}.jpg
     Fail    ${log_msg}
 
@@ -149,7 +149,7 @@ Fill random string
 
 verify case of fail - 2
     [Arguments]    ${expected}
-    Wait Until Keyword Succeeds    10 s    3 s    Element Should Be Visible    id=Validationsummary_personelinformation    ${expected}
+    Wait Until Keyword Succeeds    10 s    5 s    Element Should Be Visible    id=Validationsummary_personelinformation    ${expected}
 
 Fill fax number
     Page Should Contain Element    id=PersonalInformation_txtPhoneFaxCountry

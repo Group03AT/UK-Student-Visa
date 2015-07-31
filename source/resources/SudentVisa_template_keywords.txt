@@ -9,7 +9,7 @@ Resource          StudentVisa_common_keywords.txt
 
 *** Variables ***
 ${URL}            https://assessments.visabureau.com/uk/assessment/general/default.aspx?visatype=23
-${DRIVER}         Chrome
+${DRIVER}         chrome
 
 *** Keywords ***
 Register personal info
