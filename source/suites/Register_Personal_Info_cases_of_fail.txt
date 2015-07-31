@@ -82,17 +82,17 @@ Register for a new Student EA
     ...    LastName    20    [Any]    [Any]    Address    Town
     ...    09801    09802    09803    [Any]    [Any]    [Any]
     ...    ${EMPTY}    123456
-    20    enter invalid form of email    Personal Information - 16. Email    type visa    [Any]    [Any]    FirstName
-    ...    LastName    20    [Any]    [Any]    Address    Town
-    ...    09801    09802    09803    [Any]    [Any]    [Any]
-    ...    abc.ggf    123456
+    #20    enter invalid form of email    Personal Information - 16. Email    type visa    [Any]    [Any]    FirstName
+    ...    # LastName    20    [Any]    [Any]    Address    Town
+    ...    # 09801    09802    09803    [Any]    [Any]    [Any]
+    ...    # abc.ggf    123456
     21    leave blank the password    Personal Information - 17. Password    type visa    [Any]    [Any]    FirstName
     ...    LastName    20    [Any]    [Any]    Address    Town
     ...    09801    09802    09803    [Any]    [Any]    [Any]
     ...    abc.ggf    ${EMPTY}
-    22    enter password with length < 6    Personal Information - 17. Password    type visa    [Any]    [Any]    FirstName
-    ...    LastName    20    [Any]    [Any]    Address    Town
-    ...    09801    09802    09803    [Any]    [Any]    [Any]
-    ...    abc.ggf    123
+    #22    enter password with length < 6    Personal Information - 17. Password    type visa    [Any]    [Any]    FirstName
+    ...    # LastName    20    [Any]    [Any]    Address    Town
+    ...    # 09801    09802    09803    [Any]    [Any]    [Any]
+    ...    # abc.ggf    123
 
 *** Keywords ***
