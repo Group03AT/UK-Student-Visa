@@ -1,0 +1,28 @@
+*** Settings ***
+Library           Selenium2Library
+Library           String
+Library           ../libs/VisaBureauLibrary.py
+Library           Collections
+Variables         variables/EA_map_variable.py
+Variables         variables/country.py
+Resource          StudentVisa_common_keywords.txt
+
+*** Variables ***
+${URL}            https://assessments.visabureau.com/uk/assessment/general/default.aspx?visatype=23
+${DRIVER}         Chrome
+
+*** Keywords ***
+Register personal info
+    [Arguments]    ${tcID}    ${tcDesc}    ${expected}    ${visaDesc}    ${title}    ${gender}
+    ...    ${firstname}    ${lastname}    ${age}    ${citizenship}    ${residence}    ${address}
+    ...    ${town}    ${workphone}    ${homephone}    ${mobile}    ${marital}    ${language}
+    ...    ${education}    ${email}    ${password}
+    Fill Student EA Questions    ${visaDesc}    ${title}    ${gender}    ${firstname}    ${lastname}    ${age}
+    ...    ${citizenship}    ${residence}    ${address}    ${town}    ${workphone}    ${homephone}
+    ...    ${mobile}    ${marital}    ${language}    ${education}    ${email}    ${password}
+    Click Button    id=btnPersonalInformation
+    Run Keyword If    '${expected}'!='${EMPTY}'    Run Keyword    verify case of fail - 2    ${expected}
+    Close Browser
+    Open Browser    ${URL}    ${DRIVER}
+    Return From Keyword
+    [Teardown]

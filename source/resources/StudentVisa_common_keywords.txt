@@ -1,0 +1,160 @@
+*** Settings ***
+Library           Selenium2Library
+Library           String
+Library           ../libs/VisaBureauLibrary.py
+Library           Collections
+Variables         variables/EA_map_variable.py
+Variables         variables/country.py
+
+*** Variables ***
+${URL}            https://assessments.visabureau.com/uk/assessment/general/default.aspx?visatype=23
+${DRIVER}         ff
+
+*** Keywords ***
+Test Setup
+    [Arguments]    ${url}=${URL}    ${driver}=${DRIVER}
+    Open Browser    ${url}    ${driver}
+    Maximize Browser Window
+    Wait Until Element Is Visible    id=txtOtherVisaInformation
+    Set Selenium Speed    0.2
+
+Login To Visa Bureau
+    [Arguments]    ${email}=kenji_inlove@yahoo.com    ${password}=123456a$
+    Test Setup
+    Click Element    id=LoginBox1_linkPreviousUsers    #Click Login link
+    Wait Until Element Is Visible    id=ctl00_ContentPlaceHolder2_txtEmail    #Wait until textbox username is visible
+    Input Text    id=ctl00_ContentPlaceHolder2_txtEmail    ${email}    #Enter username
+    Input Text    id=ctl00_ContentPlaceHolder2_txtPassword    ${password}    #Enter password
+    Click Element    id=ctl00_ContentPlaceHolder2_ibtnLogin    #Click Login button
+
+Generate Random Email
+    [Arguments]    ${suffix}=@automation.test
+    ${text}=    Generate Random String    12    [LOWER][NUMBERS]
+    ${email}=    Catenate    SEPARATOR=    ${text}    ${suffix}
+    [Return]    ${email}
+
+Get DOB By Age
+    [Arguments]    ${age}    ${day_locator}=dob_day    ${month_locator}=dob_month    ${year_locator}=dob_year
+    ${day}    Get Time    day
+    ${month}    Get Time    month
+    ${month}    Evaluate    str(${month})
+    ${month0}    Catenate    SEPARATOR=    0    ${month}
+    ${lenMonth}    Get Length    ${month}
+    ${month}    Set Variable If    ${lenMonth}==1    ${month0}    ${month}
+    ${curr_year}    Get Time    year
+    ${year}    Evaluate    int(${curr_year}-${age})
+    ${is leap year}    Is Leap Year    ${year}
+    ${day}    Set Variable If    ${is leap year}==False and '${month}'=='2' and '${day}'=='29'    28    ${day}
+    ${year}    Evaluate    str(${year})
+    [Return]    ${day}    ${month}    ${year}
+
+Select Random Radio Button
+    [Arguments]    ${location}    ${value}=[Any]
+    ${ranChoice}    Fill random string    1    YN
+    ${value}    Set Variable If    '${value}'=='[Any]'    ${ranChoice}    ${value}
+    Select Radio Button    ${location}    ${value}
+    Return From Keyword    ${value}
+
+Select Random Value From Listbox
+    [Arguments]    ${location}    ${dict}    ${key}=Any
+    [Documentation]    ${location} | ${dict} | ${key}=Any
+    ${key_tmp}    Get Random Key From Dict    ${dict}
+    ${key}    Set Variable If    '${key}'=='[Any]'    ${key_tmp}    ${key}
+    ${value}    Get From Dictionary    ${dict}    ${key}
+    Wait Until Element Is Visible    ${location}
+    Select From List By Value    ${location}    ${value}
+    Return From Keyword    ${key}    ${value}
+
+Test Fail Log
+    [Arguments]    ${log_msg}
+    ${img_filename}    Fill random string    15    [LETTERS][NUMBERS]
+    Capture Page Screenshot    ${img_filename}.jpg
+    Fail    ${log_msg}
+
+Fill Student EA Questions
+    [Arguments]    ${visaDesc}    ${title}    ${gender}    ${firstname}    ${lastname}    ${age}
+    ...    ${citizenship}    ${residence}    ${address}    ${town}    ${workphone}    ${homephone}
+    ...    ${mobile}    ${marital}    ${language}    ${education}    ${email}    ${password}
+    Run Keyword If    '${visaDesc}'!='${EMPTY}'    Input Text    id=txtOtherVisaInformation    ${visaDesc}    #2. Briefly describe the type of visa you are looking for
+    Run Keyword If    '${title}'!='${EMPTY}'    Select Random Value From Listbox    id=PersonalInformation_ddPersonTitle    ${TITLE_DICT}    ${title}    #1. Title
+    Run Keyword If    '${gender}'!='${EMPTY}'    Select Random Value From Listbox    id=PersonalInformation_ddPersonSex    ${GENDER_DICT}    ${gender}    #2. Gender
+    Run Keyword If    '${firstname}'!='${EMPTY}'    Input Text    id=PersonalInformation_txtPersonFirstName    ${firstname}    #3. First name
+    Run Keyword If    '${lastname}'!='${EMPTY}'    Input Text    id=PersonalInformation_txtPersonLastName    ${lastname}    #4. Last name
+    Run Keyword If    '${age}'!='${EMPTY}'    Fill DOB By Age    ${age}
+    Run Keyword If    '${citizenship}'!='${EMPTY}'    Select a value from list by random-2    id=PersonalInformation_ddPersonalCitizenship    ${COUNTRY_DICT}    ${citizenship}
+    Run Keyword If    '${residence}'!='${EMPTY}'    Select a value from list by random-2    id=PersonalInformation_ddCountry    ${COUNTRY_DICT}    ${residence}
+    Run Keyword If    '${address}'!='${EMPTY}'    Input Text    id=PersonalInformation_txtPersonalAddress1    ${address}
+    Run Keyword If    '${town}'!='${EMPTY}'    Input Text    id=PersonalInformation_txtCityCounty    ${town}
+    ${postcode}    Fill random string
+    Run Keyword If    '${postcode}'!='{EMPTY}'    Input Text    id=PersonalInformation_txtPostcode    ${postcode}
+    Run Keyword If    '${workphone}'!='{EMPTY}'    Input Text    id=PersonalInformation_txtPhoneDaytimeNumber    ${workphone}
+    Run Keyword If    '${homephone}'!='{EMPTY}'    Input Text    id=PersonalInformation_txtPhoneHomeNumber    ${homephone}
+    Run Keyword If    '${mobile}'!='{EMPTY}'    Input Text    id=PersonalInformation_txtPersonalNumberMobile    ${mobile}
+    #Run Keyword If    '${fax}'!='{EMPTY}'    Fill fax number
+    Run Keyword If    '${marital}'!='{EMPTY}'    Select Random Value From Listbox    id=PersonalInformation_ddMaritalStatus    ${MARITAL_DICT}    ${marital}
+    Run Keyword If    '${language}'!='{EMPTY}'    Select Random Value From Listbox    id=PersonalInformation_ddLanguageEnglishAbility    ${LANGUAGE_DICT}    ${language}
+    Run Keyword If    '${education}'!='{EMPTY}'    Select Random Value From Listbox    id=PersonalInformation_ddEducationLevel    ${EDUCATION_DICT}    ${education}
+    Run Keyword If    '${email}'!='{EMPTY}'    Input Text    id=PersonalInformation_txtPersonalEmail    ${email}
+    Run Keyword If    '${password}'!='{EMPTY}'    Input Password    id=PersonalInformation_txtPassword    ${password}
+
+Fill DOB By Age
+    [Arguments]    ${age}
+    ${randAge}    Evaluate    random.randint(18, 55)    random,sys    #Generate random age from 18 to 55
+    ${age}    Set Variable If    '${age}'=='[Any]'    ${randAge}    ${age}
+    Return From Keyword If    '${age}'=='${EMPTY}'
+    ${day}    ${month}    ${year}    Get DOB By Age    ${age}
+    Select From List By Value    id=PersonalInformation_MultiSegmentDataEntryBirthDate_1    ${day}
+    Select From List By Value    id=PersonalInformation_MultiSegmentDataEntryBirthDate_2    ${month}
+    Select From List By Value    id=PersonalInformation_MultiSegmentDataEntryBirthDate_3    ${year}
+
+Get a value from dictionary by random-2
+    [Arguments]    ${dicName}    ${key}=[Any]
+    ${val}    Run Keyword If    '${key}'!='[Any]'    Get From Dictionary    ${dicName}    ${key}
+    Return From Keyword If    '${val}'!='None'    ${val}
+    ${keys}    Get Dictionary Keys    ${dicName}
+    ${dicLen}    Get Length    ${keys}
+    ${ranIndex}    Evaluate    random.randint(0, ${dicLen}-${1})    random
+    #${ranKey}    Set Variable    ${keys[${ranIndex}]}
+    #${val}    Get From Dictionary    ${dicName}    ${ranKey}
+    ${val}    Get From List    ${keys}    ${ranIndex}
+    [Return]    ${val}
+
+Select a value from list by random-2
+    [Arguments]    ${locator}    ${dicName}    ${key}=[Any]
+    Wait Until Element Is Visible    ${locator}
+    ${value}    Get a value from dictionary by random-2    ${dicName}    ${key}
+    Select From List By Value    ${locator}    ${value}
+
+select random COUNTRY from list box
+    [Arguments]    ${location}    ${dict}    ${key}=Any
+    ${key_tmp}    Get Random Value From Dict    ${dict}
+    ${key}    Set Variable If    '${key}'=='[Any]'    ${key_tmp}    ${key}
+    ${value}    Get From Dictionary    ${dict}    ${key}
+    Wait Until Element Is Visible    ${location}
+    Select From List By Value    ${location}    ${value}
+    Return From Keyword    ${key}    ${value}
+
+Fill random string
+    [Arguments]    ${length}=9    # Select "locator" and set length with type to its
+    [Documentation]    ${type}:
+    ...    - [LOWER] Lowercase ASCII characters from 'a' to 'z'.
+    ...
+    ...    - [UPPER]Uppercase ASCII characters from 'A' to 'Z'.
+    ...
+    ...    - [LETTERS]Lowercase and uppercase ASCII characters.
+    ...
+    ...    - [NUMBERS]Numbers from 0 to 9.
+    ${value}    Generate Random String    ${length}    [LETTERS][NUMBERS]
+    [Return]    ${value}
+
+verify case of fail - 2
+    [Arguments]    ${expected}
+    Wait Until Keyword Succeeds    10 s    3 s    Element Should Be Visible    id=Validationsummary_personelinformation    ${expected}
+
+Fill fax number
+    Page Should Contain Element    id=PersonalInformation_txtPhoneFaxCountry
+    ${value1}    Generate Random String    4    [NUMBERS]
+    ${value2}    Generate Random String    6    [NUMBERS]
+    Input Text    id=PersonalInformation_txtPhoneFaxCountry    ${value1}
+    Input Text    id=PersonalInformation_txtPhoneFaxArea    ${value1}
+    Input Text    id=PersonalInformation_txtPhoneFaxNumber    ${value2}

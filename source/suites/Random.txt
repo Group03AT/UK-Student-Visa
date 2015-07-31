@@ -1,0 +1,12 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Collections
+Library           String
+Resource          ../resources/Random_Fill_Data.txt
+
+*** Test Cases ***
+Random_Fill_True_Data
+    [Setup]    openURL
+    Auto Fill Data to Form
+    Sleep    10s
+    Confirm Result
